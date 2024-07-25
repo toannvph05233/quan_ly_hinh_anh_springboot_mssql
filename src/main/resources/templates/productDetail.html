@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Open+Sans">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+<style>
+    body {
+        font-family: 'Roboto Condensed', sans-serif;
+        background-color: #f5f5f5
+    }
+
+    .hedding {
+        font-size: 20px;
+        color: #ab8181;
+    }
+
+    .main-section {
+        position: absolute;
+        left: 50%;
+        right: 50%;
+        transform: translate(-50%, 5%);
+    }
+
+    .left-side-product-box img {
+        width: 100%;
+    }
+
+    .left-side-product-box .sub-img img {
+        margin-top: 5px;
+        width: 83px;
+        height: 100px;
+    }
+
+    .right-side-pro-detail span {
+        font-size: 15px;
+    }
+
+    .right-side-pro-detail p {
+        font-size: 25px;
+        color: #a1a1a1;
+    }
+
+    .right-side-pro-detail .price-pro {
+        color: #E45641;
+    }
+
+    .right-side-pro-detail .tag-section {
+        font-size: 18px;
+        color: #5D4C46;
+    }
+
+    .pro-box-section .pro-box img {
+        width: 100%;
+        height: 150px;
+    }
+
+    @media (min-width: 360px) and (max-width: 640px) {
+        .pro-box-section .pro-box img {
+            height: auto;
+        }
+    }
+
+    .pro-box {
+        position: relative;
+    }
+
+    .checkbox, .delete-btn {
+        position: absolute;
+        top: 10px;
+        z-index: 10;
+    }
+
+    .checkbox {
+        left: 10px;
+    }
+
+    .delete-btn {
+        top: 0px;
+        right: 10px;
+        background: none;
+        border: none;
+        color: red;
+        font-size: 20px;
+    }
+</style>
+<body>
+
+<div class="container">
+    <div class="col-lg-8 border p-3 main-section bg-white">
+        <h2 class="pb-3">
+            Product Detail
+        </h2>
+        <a type="button" class="btn btn-success" href="/products" style="margin-bottom: 20px">
+            Trang chủ
+        </a>
+        <div class="row m-0">
+            <div class="col-lg-4 left-side-product-box pb-3">
+                <img th:src="${product.getImageUrl()}" alt="no-image" class="border p-3">
+            </div>
+            <div class="col-lg-8">
+                <div class="right-side-pro-detail border p-3 m-0">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p th:text="'Tilte : ' + ${product.title}" class="m-0 p-0"></p>
+                        </div>
+                        <div class="col-lg-12">
+                            <p th:text="'Giá : ' + ${product.price} + '$'" class="m-0 p-0 price-pro">$30</p>
+                            <hr class="p-0 m-0">
+                        </div>
+
+
+                        <div class="col-lg-12 mt-3">
+                            <div class="row">
+                                <div class="col-lg-6 pb-2">
+                                    <button type="button" class="btn btn-primary" data-toggle="modal"
+                                            data-target="#uploadModal">Add Image
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 text-center pt-3">
+                <h4>Image Product</h4>
+            </div>
+        </div>
+        <div class="row mt-3 p-0 text-center pro-box-section">
+            <div th:each="image : ${product.images}" class="col-lg-3 pb-2">
+                <div class="pro-box border p-0 m-0">
+                    <input th:if="${image.getMainStatus()==1}" type="radio" name="avatar" class="checkbox" checked>
+                    <input th:if="${image.getMainStatus()!=1}"
+                           th:attr="onclick='changeImage(' + ${product.id} + ',' + ${image.id} + ')'" type="radio"
+                           name="avatar" class="checkbox">
+                    <button class="delete-btn" type="button" th:onclick="'deleteImage(' + ${product.id} + ',' + ${image.id} + ')'">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                    <img th:src="${image.getFileName()}" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal" id="uploadModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Upload Images</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form id="uploadForm" th:action="@{/products/images/{idP}(idP=${product.id})}" method="post"
+                      enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="imgFiles">Select Images:</label>
+                        <input type="file" id="imgFiles" name="imgFiles" multiple class="form-control">
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="submitUploadForm()">Upload</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+
+<script>
+    function changeImage(idP, idI) {
+        $.ajax({
+            type: "Get",
+            url: `http://localhost:8080/products/images/change/${idP}/${idI}`,
+            success: function (data) {
+                window.location.reload();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+
+    function submitUploadForm() {
+        document.getElementById("uploadForm").submit();
+    }
+
+    function deleteImage(idP, idI) {
+        $.ajax({
+            type: "GET",
+            url: `/products/images/delete/${idP}/${idI}`,
+            success: function() {
+                location.reload();
+            },
+            error: function(error) {
+                console.error("Error deleting image:", error);
+                // Optionally, show an error message to the user
+            }
+        });
+    }
+
+</script>
